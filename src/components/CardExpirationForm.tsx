@@ -1,67 +1,61 @@
-import { useEffect, useState } from "react";
-import isExactLength from "../utils/isExactLength";
-import styled from "@emotion/styled";
-import NumberInput from "./NumberInput";
+import { useEffect, useState } from 'react';
+import isExactLength from '../utils/isExactLength';
+import styled from '@emotion/styled';
+import NumberInput from './NumberInput';
 
 interface CardExpirationFormProps {
-  month: string;
-  year: string;
-  setMonth: React.Dispatch<React.SetStateAction<string>>;
-  setYear: React.Dispatch<React.SetStateAction<string>>;
+  cardInfo: {
+    month: string;
+    year: string;
+  };
+  handleCardInfo: (key: string, value: string) => void;
   maxLength: number;
 }
 
-function CardExpirationForm({
-  month,
-  year,
-  setMonth,
-  setYear,
-  maxLength,
-}: CardExpirationFormProps) {
-  const [errorText, setErrorText] = useState("");
+function CardExpirationForm({ cardInfo, handleCardInfo, maxLength }: CardExpirationFormProps) {
+  const [errorText, setErrorText] = useState('');
 
-  const isValidMonth = Number(month) >= 1 && Number(month) <= 12;
-  const isValidYear = Number(year) >= 25 && Number(year) <= 99;
+  const isValidMonth = Number(cardInfo.month) >= 1 && Number(cardInfo.month) <= 12;
+  const isValidYear = Number(cardInfo.year) >= 25 && Number(cardInfo.year) <= 99;
 
   useEffect(() => {
-    const isExactDigits = [month, year].some((number) => {
-      if (isExactLength(number, 0) || isExactLength(number, maxLength))
-        return false;
+    const isExactDigits = [cardInfo.month, cardInfo.year].some((number) => {
+      if (isExactLength(number, 0) || isExactLength(number, maxLength)) return false;
       return true;
     });
 
     if (isExactDigits) {
-      setErrorText(maxLength + "자의 숫자만 입력 가능합니다.");
+      setErrorText(maxLength + '자의 숫자만 입력 가능합니다.');
       return;
     }
-    if (month !== "" && !isValidMonth) {
-      setErrorText("01에서 12사이의 숫자를 입력해주세요.");
+    if (cardInfo.month !== '' && !isValidMonth) {
+      setErrorText('01에서 12사이의 숫자를 입력해주세요.');
       return;
     }
-    if (year !== "" && !isValidYear) {
-      setErrorText("만료된 연도입니다. 25년 이후의 년도를 입력해주세요.");
+    if (cardInfo.year !== '' && !isValidYear) {
+      setErrorText('만료된 연도입니다. 25년 이후의 년도를 입력해주세요.');
       return;
     }
-    setErrorText("");
-  }, [month, year]);
+    setErrorText('');
+  }, [cardInfo.month, cardInfo.year]);
 
   return (
     <NumberInputForm>
       <Label>유효기간</Label>
       <NumberInputContainer>
         <NumberInput
-          value={month}
-          setValue={setMonth}
+          value={cardInfo.month}
+          setValue={(value) => handleCardInfo('month', value)}
           maxLength={maxLength}
           placeholder="MM"
-          extraErrorCondition={month !== "" && !isValidMonth}
+          extraErrorCondition={cardInfo.month !== '' && !isValidMonth}
         />
         <NumberInput
-          value={year}
-          setValue={setYear}
+          value={cardInfo.year}
+          setValue={(value) => handleCardInfo('year', value)}
           maxLength={maxLength}
           placeholder="YY"
-          extraErrorCondition={year !== "" && !isValidYear}
+          extraErrorCondition={cardInfo.year !== '' && !isValidYear}
         />
       </NumberInputContainer>
       <ErrorText>{errorText}</ErrorText>

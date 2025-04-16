@@ -1,25 +1,16 @@
-import type { Meta } from "@storybook/react";
-import CardExpirationForm from "../components/CardExpirationForm";
-import { useState } from "react";
+import type { Meta } from '@storybook/react';
+import CardExpirationForm from '../components/CardExpirationForm';
+import useCardInfo from '../hooks/useCardInfo';
 
 const meta = {
-  title: "CardExpirationForm",
+  title: 'CardExpirationForm',
   component: CardExpirationForm,
 } satisfies Meta<typeof CardExpirationForm>;
 
 export default meta;
 
 export const Default = () => {
-  const [month, setMonth] = useState("");
-  const [year, setYear] = useState("");
+  const { cardInfo, handleCardInfo } = useCardInfo();
 
-  return (
-    <CardExpirationForm
-      month={month}
-      setMonth={setMonth}
-      year={year}
-      setYear={setYear}
-      maxLength={2}
-    />
-  );
+  return <CardExpirationForm cardInfo={cardInfo} handleCardInfo={handleCardInfo} maxLength={2} />;
 };

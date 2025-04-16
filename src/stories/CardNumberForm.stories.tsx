@@ -1,31 +1,16 @@
-import type { Meta } from "@storybook/react";
-import CardNumberForm from "../components/CardNumberForm";
-import { useState } from "react";
+import type { Meta } from '@storybook/react';
+import CardNumberForm from '../components/CardNumberForm';
+import useCardInfo from '../hooks/useCardInfo';
 
 const meta = {
-  title: "CardNumberForm",
+  title: 'CardNumberForm',
   component: CardNumberForm,
 } satisfies Meta<typeof CardNumberForm>;
 
 export default meta;
 
 export const Default = () => {
-  const [first, setFirst] = useState("");
-  const [second, setSecond] = useState("");
-  const [third, setThird] = useState("");
-  const [fourth, setFourth] = useState("");
+  const { cardInfo, handleCardInfo } = useCardInfo();
 
-  return (
-    <CardNumberForm
-      firstNumber={first}
-      setFirstNumber={setFirst}
-      secondNumber={second}
-      setSecondNumber={setSecond}
-      thirdNumber={third}
-      setThirdNumber={setThird}
-      fourthNumber={fourth}
-      setFourthNumber={setFourth}
-      maxLength={4}
-    />
-  );
+  return <CardNumberForm cardInfo={cardInfo} handleCardInfo={handleCardInfo} maxLength={4} />;
 };
