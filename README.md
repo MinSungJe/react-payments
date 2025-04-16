@@ -24,3 +24,5 @@
 - [ ] 카드 번호에 따라 카드 오른쪽 위에 해당하는 종류를 표시한다.
   - Visa: 4로 시작하는 16자리 숫자
   - MasterCard: 51~55로 시작하는 16자리 숫자
+
+https://67ff8d35b72d3604ced35d91-hjhzosupug.chromatic.com/

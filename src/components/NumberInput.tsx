@@ -20,15 +20,10 @@ function NumberInput({
   const [isError, setIsError] = useState(false);
 
   useEffect(() => {
-    if (!isExactLength(value, 0) && !isExactLength(value, maxLength)) {
+    if ((!isExactLength(value, 0) && !isExactLength(value, maxLength)) || extraErrorCondition) {
       setIsError(true);
       return;
     }
-    if (extraErrorCondition) {
-      setIsError(true);
-      return;
-    }
-
     setIsError(false);
   }, [value]);
 
