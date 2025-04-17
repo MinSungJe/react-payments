@@ -13506,9 +13506,14 @@ const Caption = newStyled.p`
 const MASTER_CARD_PREFIXES = ["51", "52", "53", "54", "55"];
 const VISA_CARD_PREFIXES = ["4"];
 const CARD_TYPE_PATH = {
-  VISA: "/assets/Visa.png",
-  MasterCard: "/assets/Mastercard.png",
+  VISA: "./assets/Visa.png",
+  MasterCard: "./assets/Mastercard.png",
   None: ""
+};
+const CARD_INFO_LENGTH = {
+  NUMBER: 4,
+  EXPIRATION: 2,
+  CVC: 3
 };
 function Card({ cardNumber, expiration }) {
   const cardType = getCardType(cardNumber[0]);
@@ -13525,7 +13530,7 @@ function Card({ cardNumber, expiration }) {
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(CardInfo, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: maskCardNumber(cardNumber).join(" ") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: expiration.join("/") })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: expiration[0] === "" && expiration[1] === "" ? "" : expiration.join("/") })
     ] })
   ] });
 }
@@ -13583,14 +13588,19 @@ function NumberInput({
 }) {
   const [isError, setIsError] = reactExports.useState(false);
   reactExports.useEffect(() => {
-    if (!isExactLength(value, 0) && !isExactLength(value, maxLength) || extraErrorCondition) {
+    if (!isExactLength(value, 0) && !isExactLength(value, maxLength)) {
+      setIsError(true);
+      return;
+    }
+    if (extraErrorCondition) {
       setIsError(true);
       return;
     }
     setIsError(false);
   }, [value]);
   function handleValue(e) {
-    if (Number.isNaN(Number(e.target.value))) {
+    const numericRegex = /^[0-9]*$/;
+    if (!numericRegex.test(e.target.value)) {
       e.target.value = value;
       return;
     }
@@ -13618,171 +13628,22 @@ const Input = newStyled.input`
     outline: none;
   }
 `;
-function CardNumberForm({ cardInfo, handleCardInfo, maxLength }) {
-  const [errorText, setErrorText] = reactExports.useState("");
-  reactExports.useEffect(() => {
-    const condition = [
-      cardInfo.firstNumber,
-      cardInfo.secondNumber,
-      cardInfo.thirdNumber,
-      cardInfo.fourthNumber
-    ].some((number) => {
-      if (isExactLength(number, 0) || isExactLength(number, maxLength)) return false;
-      return true;
-    });
-    if (condition) setErrorText(maxLength + "자의 숫자만 입력 가능합니다.");
-    else setErrorText("");
-  }, [cardInfo.firstNumber, cardInfo.secondNumber, cardInfo.thirdNumber, cardInfo.fourthNumber]);
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(NumberInputForm$2, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Label$2, { children: "카드 번호" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(NumberInputContainer$2, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        NumberInput,
-        {
-          value: cardInfo.firstNumber,
-          setValue: (value) => handleCardInfo("firstNumber", value),
-          maxLength,
-          placeholder: "1234"
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        NumberInput,
-        {
-          value: cardInfo.secondNumber,
-          setValue: (value) => handleCardInfo("secondNumber", value),
-          maxLength,
-          placeholder: "1234"
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        NumberInput,
-        {
-          value: cardInfo.thirdNumber,
-          setValue: (value) => handleCardInfo("thirdNumber", value),
-          maxLength,
-          placeholder: "1234"
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        NumberInput,
-        {
-          value: cardInfo.fourthNumber,
-          setValue: (value) => handleCardInfo("fourthNumber", value),
-          maxLength,
-          placeholder: "1234"
-        }
-      )
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorText$2, { children: errorText })
-  ] });
-}
-const Label$2 = newStyled.p`
-  font-size: 12px;
-  font-weight: 500;
-  margin-bottom: 8px;
-`;
-const NumberInputContainer$2 = newStyled.div`
-  display: flex;
-  gap: 10px;
-  margin-bottom: 8px;
-`;
-const ErrorText$2 = newStyled.p`
-  color: #ff3d3d;
-  font-size: 9.5px;
-`;
-const NumberInputForm$2 = newStyled.div`
-  height: 70px;
-`;
-function CardExpirationForm({ cardInfo, handleCardInfo, maxLength }) {
-  const [errorText, setErrorText] = reactExports.useState("");
-  const isValidMonth = Number(cardInfo.month) >= 1 && Number(cardInfo.month) <= 12;
-  const isValidYear = Number(cardInfo.year) >= 25 && Number(cardInfo.year) <= 99;
-  reactExports.useEffect(() => {
-    const isExactDigits = [cardInfo.month, cardInfo.year].some((number) => {
-      if (isExactLength(number, 0) || isExactLength(number, maxLength)) return false;
-      return true;
-    });
-    if (isExactDigits) {
-      setErrorText(maxLength + "자의 숫자만 입력 가능합니다.");
-      return;
-    }
-    if (cardInfo.month !== "" && !isValidMonth) {
-      setErrorText("01에서 12사이의 숫자를 입력해주세요.");
-      return;
-    }
-    if (cardInfo.year !== "" && !isValidYear) {
-      setErrorText("만료된 연도입니다. 25년 이후의 년도를 입력해주세요.");
-      return;
-    }
-    setErrorText("");
-  }, [cardInfo.month, cardInfo.year]);
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(NumberInputForm$1, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Label$1, { children: "유효기간" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(NumberInputContainer$1, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        NumberInput,
-        {
-          value: cardInfo.month,
-          setValue: (value) => handleCardInfo("month", value),
-          maxLength,
-          placeholder: "MM",
-          extraErrorCondition: cardInfo.month !== "" && !isValidMonth
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        NumberInput,
-        {
-          value: cardInfo.year,
-          setValue: (value) => handleCardInfo("year", value),
-          maxLength,
-          placeholder: "YY",
-          extraErrorCondition: cardInfo.year !== "" && !isValidYear
-        }
-      )
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorText$1, { children: errorText })
-  ] });
-}
-const Label$1 = newStyled.p`
-  font-size: 12px;
-  font-weight: 500;
-  margin-bottom: 8px;
-`;
-const NumberInputContainer$1 = newStyled.div`
-  display: flex;
-  gap: 10px;
-  margin-bottom: 8px;
-`;
-const ErrorText$1 = newStyled.p`
-  color: #ff3d3d;
-  font-size: 9.5px;
-`;
-const NumberInputForm$1 = newStyled.div`
-  height: 70px;
-`;
-function CardCVCForm({ cardInfo, handleCardInfo, maxLength }) {
-  const [errorText, setErrorText] = reactExports.useState("");
-  reactExports.useEffect(() => {
-    if (isExactLength(cardInfo.cvc, 0) || isExactLength(cardInfo.cvc, maxLength)) {
-      setErrorText("");
-    } else {
-      setErrorText(maxLength + "자의 숫자만 입력 가능합니다.");
-    }
-  }, [cardInfo.cvc]);
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(NumberInputForm, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "CVC" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(NumberInputContainer, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-      NumberInput,
-      {
-        value: cardInfo.cvc,
-        setValue: (value) => handleCardInfo("cvc", value),
-        maxLength,
-        placeholder: "123"
-      }
-    ) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorText, { children: errorText })
-  ] });
-}
+const CARD_NUMBER_MESSAGE = {
+  main: "결제할 카드 번호를 입력해 주세요",
+  caption: "본인 명의의 카드만 결제 가능합니다."
+};
+const EXPIRATION_MESSAGE = {
+  main: "카드 유효기간을 입력해 주세요",
+  caption: "월/년도(MMYY)를 순서대로 입력해 주세요."
+};
+const CVC_MESSAGE = {
+  main: "CVC 번호를 입력해 주세요"
+};
+const ERROR_MESSAGE = {
+  LENGTH: (length2) => `${length2}자의 숫자만 입력 가능합니다.`,
+  INVALID_MONTH: "01에서 12사이의 숫자를 입력해주세요.",
+  INVALID_YEAR: "만료된 연도입니다. 25년 이후의 년도를 입력해주세요."
+};
 const Label = newStyled.p`
   font-size: 12px;
   font-weight: 500;
@@ -13800,6 +13661,170 @@ const ErrorText = newStyled.p`
 const NumberInputForm = newStyled.div`
   height: 70px;
 `;
+function CardNumberForm({
+  cardInfo,
+  handleCardInfo,
+  maxLength
+}) {
+  const [errorText, setErrorText] = reactExports.useState("");
+  reactExports.useEffect(() => {
+    const condition = [
+      cardInfo.firstNumber,
+      cardInfo.secondNumber,
+      cardInfo.thirdNumber,
+      cardInfo.fourthNumber
+    ].some((number) => {
+      if (isExactLength(number, 0) || isExactLength(number, maxLength))
+        return false;
+      return true;
+    });
+    if (condition) setErrorText(ERROR_MESSAGE.LENGTH(maxLength));
+    else setErrorText("");
+  }, [
+    cardInfo.firstNumber,
+    cardInfo.secondNumber,
+    cardInfo.thirdNumber,
+    cardInfo.fourthNumber
+  ]);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(NumberInputForm, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "카드 번호" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(NumberInputContainer, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        NumberInput,
+        {
+          value: cardInfo.firstNumber,
+          setValue: (value) => {
+            handleCardInfo("firstNumber", value);
+          },
+          maxLength,
+          placeholder: "1234"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        NumberInput,
+        {
+          value: cardInfo.secondNumber,
+          setValue: (value) => {
+            handleCardInfo("secondNumber", value);
+          },
+          maxLength,
+          placeholder: "1234"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        NumberInput,
+        {
+          value: cardInfo.thirdNumber,
+          setValue: (value) => {
+            handleCardInfo("thirdNumber", value);
+          },
+          maxLength,
+          placeholder: "1234"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        NumberInput,
+        {
+          value: cardInfo.fourthNumber,
+          setValue: (value) => {
+            handleCardInfo("fourthNumber", value);
+          },
+          maxLength,
+          placeholder: "1234"
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorText, { children: errorText })
+  ] });
+}
+function CardExpirationForm({
+  cardInfo,
+  handleCardInfo,
+  maxLength
+}) {
+  const [errorText, setErrorText] = reactExports.useState("");
+  const isValidMonth = Number(cardInfo.month) >= 1 && Number(cardInfo.month) <= 12;
+  const isValidYear = Number(cardInfo.year) >= 25 && Number(cardInfo.year) <= 99;
+  reactExports.useEffect(() => {
+    const isExactDigits = [cardInfo.month, cardInfo.year].some((number) => {
+      if (isExactLength(number, 0) || isExactLength(number, maxLength))
+        return false;
+      return true;
+    });
+    if (isExactDigits) {
+      setErrorText(ERROR_MESSAGE.LENGTH(maxLength));
+      return;
+    }
+    if (cardInfo.month !== "" && !isValidMonth) {
+      setErrorText(ERROR_MESSAGE.INVALID_MONTH);
+      return;
+    }
+    if (cardInfo.year !== "" && !isValidYear) {
+      setErrorText(ERROR_MESSAGE.INVALID_YEAR);
+      return;
+    }
+    setErrorText("");
+  }, [cardInfo.month, cardInfo.year]);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(NumberInputForm, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "유효기간" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(NumberInputContainer, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        NumberInput,
+        {
+          value: cardInfo.month,
+          setValue: (value) => {
+            handleCardInfo("month", value);
+          },
+          maxLength,
+          placeholder: "MM",
+          extraErrorCondition: cardInfo.month !== "" && !isValidMonth
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        NumberInput,
+        {
+          value: cardInfo.year,
+          setValue: (value) => {
+            handleCardInfo("year", value);
+          },
+          maxLength,
+          placeholder: "YY",
+          extraErrorCondition: cardInfo.year !== "" && !isValidYear
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorText, { children: errorText })
+  ] });
+}
+function CardCVCForm({
+  cardInfo,
+  handleCardInfo,
+  maxLength
+}) {
+  const [errorText, setErrorText] = reactExports.useState("");
+  reactExports.useEffect(() => {
+    if (isExactLength(cardInfo.cvc, 0) || isExactLength(cardInfo.cvc, maxLength)) {
+      setErrorText("");
+    } else {
+      setErrorText(ERROR_MESSAGE.LENGTH(maxLength));
+    }
+  }, [cardInfo.cvc]);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(NumberInputForm, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Label, { children: "CVC" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(NumberInputContainer, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      NumberInput,
+      {
+        value: cardInfo.cvc,
+        setValue: (value) => {
+          handleCardInfo("cvc", value);
+        },
+        maxLength,
+        placeholder: "123"
+      }
+    ) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorText, { children: errorText })
+  ] });
+}
 function useCardInfo() {
   const [cardInfo, setCardInfo] = reactExports.useState({
     firstNumber: "",
@@ -13810,12 +13835,9 @@ function useCardInfo() {
     year: "",
     cvc: ""
   });
-  const handleCardInfo = (key, value) => {
-    setCardInfo((prev2) => ({
-      ...prev2,
-      [key]: value
-    }));
-  };
+  function handleCardInfo(key, value) {
+    setCardInfo((prev2) => ({ ...prev2, [key]: value }));
+  }
   return { cardInfo, handleCardInfo };
 }
 function App() {
@@ -13837,21 +13859,42 @@ function App() {
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         Announcement,
         {
-          main: "결제할 카드 번호를 입력해 주세요",
-          caption: "본인 명의의 카드만 결제 가능합니다."
+          main: CARD_NUMBER_MESSAGE.main,
+          caption: CARD_NUMBER_MESSAGE.caption
         }
       ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(CardNumberForm, { cardInfo, handleCardInfo, maxLength: 4 }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        CardNumberForm,
+        {
+          cardInfo,
+          handleCardInfo,
+          maxLength: CARD_INFO_LENGTH.NUMBER
+        }
+      ),
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         Announcement,
         {
-          main: "카드 유효기간을 입력해 주세요",
-          caption: "월/년도(MMYY)를 순서대로 입력해 주세요."
+          main: EXPIRATION_MESSAGE.main,
+          caption: EXPIRATION_MESSAGE.caption
         }
       ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(CardExpirationForm, { cardInfo, handleCardInfo, maxLength: 2 }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Announcement, { main: "CVC 번호를 입력해 주세요" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(CardCVCForm, { cardInfo, handleCardInfo, maxLength: 3 })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        CardExpirationForm,
+        {
+          cardInfo,
+          handleCardInfo,
+          maxLength: CARD_INFO_LENGTH.EXPIRATION
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Announcement, { main: CVC_MESSAGE.main }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        CardCVCForm,
+        {
+          cardInfo,
+          handleCardInfo,
+          maxLength: CARD_INFO_LENGTH.CVC
+        }
+      )
     ] })
   ] });
 }
