@@ -13506,8 +13506,8 @@ const Caption = newStyled.p`
 const MASTER_CARD_PREFIXES = ["51", "52", "53", "54", "55"];
 const VISA_CARD_PREFIXES = ["4"];
 const CARD_TYPE_PATH = {
-  VISA: "./assets/Visa.png",
-  MasterCard: "./assets/Mastercard.png",
+  VISA: "/assets/Visa.png",
+  MasterCard: "/assets/Mastercard.png",
   None: ""
 };
 const CARD_INFO_LENGTH = {
